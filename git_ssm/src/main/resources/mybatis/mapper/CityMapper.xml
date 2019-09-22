@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myproject.ssm.dao.CityDao">
+    <resultMap id="cityMap" type="com.myproject.ssm.pojo.City">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="ishot" property="ishot"/>
+        <collection property="countyList" ofType="com.myproject.ssm.pojo.County">
+            <id property="id" column="cid"/>
+            <result property="name" column="cname"/>
+            <result property="cityid" column="city_id"/>
+        </collection>
+    </resultMap>
+
+
+    <select id="findAll" resultMap="cityMap">
+        select *
+        from tb_city
+    </select>
+
+    <select id="findById" resultMap="cityMap" parameterType="String">
+        select *
+        from tb_city
+        where id = #{id}
+    </select>
+
+    <select id="findCountyById" parameterType="string" resultMap="cityMap">
+        select a.name,b.id as cid,b.name as cname
+        from tb_city a,tb_county b
+        where a.id = b.city_id and a.id = #{id}
+    </select>
+
+    <select id="findByIdAndName" resultType="City">
+        select id,NAME
+        from tb_city
+        where id = #{0} and name = #{1}
+    </select>
+
+    <select id="findBySearch" resultType="City" parameterType="Map">
+        select *
+        from tb_city
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="name != null">
+                and name = #{name}
+            </if>
+            <if test="ishot != null">
+                and ishot = #{ishot}
+            </if>
+        </where>
+    </select>
+
+    <!-- 去掉最后一个逗号 -->
+    <sql id="key">
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+          <if test="ishot != null">
+              ishot,
+          </if>
+        </trim>
+    </sql>
+
+    <sql id="value">
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="ishot != null">
+                #{ishot},
+            </if>
+        </trim>
+    </sql>
+
+    <insert id="save" parameterType="City">
+        insert into tb_city(<include refid="key"/>)
+        values (<include refid="value"/>)
+
+    </insert>
+
+    <update id="update" parameterType="City">
+        update tb_city
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="ishot != null">
+                ishot = #{ishot},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>
